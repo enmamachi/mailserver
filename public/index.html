@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kirim Email</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+        input[type="text"], input[type="email"], textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Kirim Email</h2>
+        <input type="email" id="from" placeholder="Dari (sender@example.com)" required>
+        <input type="email" id="to" placeholder="Kepada (recipient@example.com)" required>
+        <input type="text" id="subject" placeholder="Subjek" required>
+        <textarea id="text" placeholder="Isi Email" rows="4" required></textarea>
+        <button onclick="sendEmail()">Kirim Email</button>
+        <div id="response" style="margin-top: 10px;"></div>
+    </div>
+
+    <script>
+        async function sendEmail() {
+            const from = document.getElementById('from').value;
+            const to = document.getElementById('to').value;
+            const subject = document.getElementById('subject').value;
+            const text = document.getElementById('text').value;
+
+            const responseDiv = document.getElementById('response');
+            responseDiv.innerHTML = ''; // Reset response message
+
+            const response = await fetch('/send-email', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ from, to, subject, text }),
+            });
+
+            const result = await response.json();
+            responseDiv.innerHTML = result.message;
+        }
+    </script>
+</body>
+</html>
