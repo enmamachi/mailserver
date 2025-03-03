@@ -1,26 +1,34 @@
-const { SMTPServer } = require('smtp-server');
-const { simpleParser } = require('mailparser');
+const express = require('express');
+const path = require('path');
+const nodemailer = require('nodemailer');
 
-const server = new SMTPServer({
-    onData(stream, session, callback) {
-        let emailData = '';
-        stream.on('data', (chunk) => {
-            emailData += chunk.toString();
-        });
-        stream.on('end', () => {
-            simpleParser(emailData, (err, mail) => {
-                if (err) {
-                    console.error('Error parsing email:', err);
-                } else {
-                    console.log('Email received:', mail);
-                }
-                callback(null, 'Message accepted');
-            });
-        });
-    },
-    disabledCommands: ['AUTH'], // Disable authentication for simplicity
+const app = express();
+const PORT = 3000;
+
+// Middleware untuk menyajikan file statis
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.json()); // Middleware untuk parsing JSON
+
+// Rute untuk halaman utama
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-server.listen(25, () => {
-    console.log('SMTP server is running on port 25');
-});
+// Rute untuk mengirim email
+app.post('/send-email', (req, res) => {
+    const { from, to, subject, text } = req.body;
+
+    const transporter = nodemailer.createTransport({
+        host: 'localhost',
+        port: 25,
+        secure: false, // true untuk port 465, false untuk port 25
+    });
+
+    const mailOptions = {
+        from,
+        to,
+        subject,
+        text,
+    };
+
+    transporter.sendMail(mailOptions, (error,
